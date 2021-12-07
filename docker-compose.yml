@@ -1,22 +1,23 @@
 version: '3'
 
 volumes:
-  postgres-data:
+  mariadb-data:
   redis-data:
 
 services:
-  postgres:
-    image: postgres:12-alpine
-    container_name: centersis-postgres
+  mariadb:
+    image: mariadb:latest
+    container_name: centersis-mariadb
     restart: unless-stopped
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - mariadb-data:/var/lib/mysql
     ports:
-      - 5432:5432
+      - 3306:3306
     environment:
-      - POSTGRES_DB=centersis
-      - POSTGRES_USER=centersis
-      - POSTGRES_PASSWORD=centersis
+      - MYSQL_ROOT_PASSWORD=centersis
+      - MYSQL_DATABASE=centersis
+      - MYSQL_USER=centersis
+      - MYSQL_PASSWORD=centersis
 
   cache:
     image: redis:4.0-alpine
@@ -35,7 +36,7 @@ services:
     volumes:
       - ./:/var/www/app
     links:
-      - postgres
+      - mariadb
       - cache
 
   queue:
@@ -46,7 +47,7 @@ services:
       - .:/var/www/app
     restart: unless-stopped
     links:
-      - postgres
+      - mariadb
       - cache
 
   server:
